@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Items App</title>
+</head>
+<body>
+    <header>
+        <h1>
+            <a href="{% url 'home' %}">Items App</a>
+        </h1>
+        <nav>
+            <ul>
+                {% if user.is_authenticated %}
+                    <li>
+                        <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                            <input type="submit" value="logout">
+                        </form>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="{% url 'login' %}">login</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'signup' %}">signup</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        <hr>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>
