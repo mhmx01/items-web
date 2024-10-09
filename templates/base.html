@@ -12,6 +12,9 @@
         </h1>
         <nav>
             <ul>
+                <li>
+                    <a href="{% url 'item_list' %}">items</a>
+                </li>
                 {% if user.is_authenticated %}
                     <li>
                         <form action="{% url 'logout' %}" method="post">
