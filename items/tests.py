@@ -62,3 +62,34 @@ class ItemDetailViewTests(ItemsAppTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "items/item_detail.html")
         self.assertContains(response, f"<h2>Item: {self.item}</h2>")
+
+
+class ItemCreateViewTests(ItemsAppTestCase):
+    def test_get_not_loggedin(self):
+        """if the user isn't logged-in, they can't see the create item link or the item creation form."""
+        response = self.client.get("/")
+        self.assertNotContains(response, '<a href="/items/new/">new item</a>')
+
+        response = self.client.get("/items/new/")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
+    def test_get_loggedin(self):
+        """logged-in users can see the create item link and the item creation form."""
+        self.client.login(**self.user_fields)
+
+        response = self.client.get("/")
+        self.assertContains(response, '<a href="/items/new/">new item</a>')
+
+        response = self.client.get("/items/new/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "items/item_new.html")
+        self.assertContains(response, "<h2>Create Item</h2>")
+
+    def test_post_loggedin(self):
+        """the item owner should be assigned to the currently logged-in user."""
+        self.client.login(**self.user_fields)
+
+        new_item_fields = {"title": "new title", "content": "new content"}
+        self.client.post("/items/new/", new_item_fields)
+        self.assertEqual(Item.objects.get(pk=2).owner, self.user)
