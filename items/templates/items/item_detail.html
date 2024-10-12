@@ -4,4 +4,9 @@
     <h2>Item: {{ item.title }}</h2>
     <div>by <u>{{ item.owner }}</u> at <u>{{ item.created_at }}</u></div>
     <p>{{ item.content }}</p>
+    {% if user == item.owner %}
+        <div>
+            <a href="{% url 'item_delete' item.pk %}">delete</a>
+        </div>
+    {% endif %}
 {% endblock %}

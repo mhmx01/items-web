@@ -13,9 +13,16 @@ class ItemsAppTestCase(TestCase):
         "username": "first_user",
         "password": "super_secret",
     }
+    second_user_fields = {
+        "username": "second_user",
+        "password": "super_secret",
+    }
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(**self.user_fields)
+        self.second_user = get_user_model().objects.create_user(
+            **self.second_user_fields
+        )
         self.item_fields["owner"] = self.user
         self.item = Item.objects.create(**self.item_fields)
 
@@ -93,3 +100,43 @@ class ItemCreateViewTests(ItemsAppTestCase):
         new_item_fields = {"title": "new title", "content": "new content"}
         self.client.post("/items/new/", new_item_fields)
         self.assertEqual(Item.objects.get(pk=2).owner, self.user)
+
+
+class ItemDeleteViewTests(ItemsAppTestCase):
+    def test_get_not_loggedin(self):
+        """if the user isn't logged-in, they can't see the delete item link or the item deletion form."""
+        response = self.client.get("/items/1/")
+        self.assertNotContains(response, '<a href="/items/1/delete/">delete</a>')
+
+        response = self.client.get("/items/1/delete/")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
+    def test_get_loggedin_not_owner(self):
+        """if the user is logged-in, but isn't the item owner, they can't see the delete item link or the item deletion form."""
+        self.client.login(**self.second_user_fields)
+
+        response = self.client.get("/items/1/")
+        self.assertNotContains(response, '<a href="/items/1/delete/">delete</a>')
+
+        response = self.client.get("/items/1/delete/")
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_loggedin_and_owner(self):
+        """if the user is logged-in, and is the item owner, they can see the delete item link and the item deletion form."""
+        self.client.login(**self.user_fields)
+
+        response = self.client.get("/items/1/")
+        self.assertContains(response, '<a href="/items/1/delete/">delete</a>')
+
+        response = self.client.get("/items/1/delete/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "items/item_delete.html")
+        self.assertContains(response, "<h2>Delete Item</h2>")
+
+    def test_post_loggedin_and_owner(self):
+        """should redirect to the items list page after deleting the item."""
+        self.client.login(**self.user_fields)
+
+        response = self.client.post("/items/1/delete/")
+        self.assertRedirects(response, "/items/", 302)
