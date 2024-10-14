@@ -34,3 +34,12 @@ class ItemDeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView
 
     def test_func(self):
         return self.request.user == self.get_object().owner
+
+
+class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
+    model = Item
+    fields = ("title", "content")
+    template_name = "items/item_edit.html"
+
+    def test_func(self):
+        return self.request.user == self.get_object().owner

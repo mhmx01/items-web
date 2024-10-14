@@ -7,6 +7,7 @@
     {% if user == item.owner %}
         <div>
             <a href="{% url 'item_delete' item.pk %}">delete</a>
+            <a href="{% url 'item_edit' item.pk %}">edit</a>
         </div>
     {% endif %}
 {% endblock %}

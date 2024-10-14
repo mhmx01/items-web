@@ -140,3 +140,36 @@ class ItemDeleteViewTests(ItemsAppTestCase):
 
         response = self.client.post("/items/1/delete/")
         self.assertRedirects(response, "/items/", 302)
+
+
+class ItemUpdateViewTests(ItemsAppTestCase):
+    def test_get_not_loggedin(self):
+        """if the user isn't logged-in, they can't see the update item link or form."""
+        response = self.client.get("/items/1/")
+        self.assertNotContains(response, '<a href="/items/1/edit/">edit</a>')
+
+        response = self.client.get("/items/1/edit/")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
+    def test_get_loggedin_not_owner(self):
+        """if the user is logged-in, but isn't the item owner, they can't see the update item link or form."""
+        self.client.login(**self.second_user_fields)
+
+        response = self.client.get("/items/1/")
+        self.assertNotContains(response, '<a href="/items/1/edit/">edit</a>')
+
+        response = self.client.get("/items/1/edit/")
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_loggedin_and_owner(self):
+        """if the user is logged-in, and is the item owner, they can see the update item link and form."""
+        self.client.login(**self.user_fields)
+
+        response = self.client.get("/items/1/")
+        self.assertContains(response, '<a href="/items/1/edit/">edit</a>')
+
+        response = self.client.get("/items/1/edit/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "items/item_edit.html")
+        self.assertContains(response, "<h2>Edit Item</h2>")
