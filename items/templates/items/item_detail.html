@@ -6,8 +6,8 @@
     <p>{{ item.content }}</p>
     {% if user == item.owner %}
         <div>
-            <a href="{% url 'item_delete' item.pk %}">delete</a>
-            <a href="{% url 'item_edit' item.pk %}">edit</a>
+            <a href="{% url 'item_delete' item.slug %}">delete</a>
+            <a href="{% url 'item_edit' item.slug %}">edit</a>
         </div>
     {% endif %}
 {% endblock %}
