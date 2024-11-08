@@ -4,10 +4,11 @@
     <h2>Item: {{ item }}</h2>
     <div>by <u>{{ item.owner }}</u> at <u>{{ item.created_at }}</u></div>
     <p>{{ item.content }}</p>
-    {% if user == item.owner %}
-        <div>
+    <div>
+        {% if user == item.owner %}
             <a class="btn btn-danger" href="{% url 'item_delete' item.slug %}">delete</a>
             <a class="btn btn-info" href="{% url 'item_edit' item.slug %}">edit</a>
-        </div>
-    {% endif %}
+        {% endif %}
+        <a class="btn btn-primary" href="{% url 'item_share' item.slug %}">share</a>
+    </div>
 {% endblock %}

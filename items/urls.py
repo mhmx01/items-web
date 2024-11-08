@@ -8,4 +8,5 @@ urlpatterns = [
     path("<slug:slug>/", views.ItemDetailView.as_view(), name="item_detail"),
     path("<slug:slug>/delete/", views.ItemDeleteView.as_view(), name="item_delete"),
     path("<slug:slug>/edit/", views.ItemUpdateView.as_view(), name="item_edit"),
+    path("<slug:slug>/share/", views.item_share, name="item_share"),
 ]

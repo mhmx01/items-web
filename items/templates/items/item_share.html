@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h2>Share: {{ item }}</h2>
+    {% if sent %}
+        <p class="alert alert-success text-center">Successfully shared with {{ form.to.value }}</p>
+        <p><a href="{{ item.get_absolute_url }}">return to item</a></p>
+    {% else %}
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input class="btn btn-primary" type="submit" value="Share">
+            <a class="btn btn-secondary" href="{{ item.get_absolute_url }}">Cancel</a>
+        </form>
+    {% endif %}
+{% endblock %}
