@@ -1,7 +1,8 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import generic
 
@@ -52,7 +53,6 @@ class ItemUpdateView(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView
 
 def item_share(request, slug):
     item = get_object_or_404(Item, slug=slug)
-    sent = False
     if request.method == "POST":
         form = ItemShareForm(request.POST)
         if form.is_valid():
@@ -73,9 +73,8 @@ def item_share(request, slug):
                 recipient_list=[cd["to"]],
                 fail_silently=False,
             )
-            sent = True
+            messages.success(request, f"Successfully shared with {cd['to']}")
+            return redirect(item)
     else:
         form = ItemShareForm()
-    return render(
-        request, "items/item_share.html", {"form": form, "item": item, "sent": sent}
-    )
+    return render(request, "items/item_share.html", {"form": form, "item": item})

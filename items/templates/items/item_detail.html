@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {% for message in messages %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+
     <h2>Item: {{ item }}</h2>
     <div>by <u>{{ item.owner }}</u> at <u>{{ item.created_at }}</u></div>
     <p>{{ item.content }}</p>
