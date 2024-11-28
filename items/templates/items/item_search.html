@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h2>Search for items</h2>
+    <form action="" method="get">
+        {{ form|crispy }}
+        <input class="btn btn-primary" type="submit" value="Go">
+    </form>
+    {% if form.is_bound %}
+        {% with items_count=items.count %}
+            <h2>Results: found {{ items_count }} item{{ items_count|pluralize }}</h2>
+        {% endwith %}
+        <ul>
+            {% for item in items %}
+                <li>
+                    <a href="{{ item.get_absolute_url }}">{{ item }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
