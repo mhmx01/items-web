@@ -1,12 +1,16 @@
+import json
+
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.mail import send_mail
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import generic
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
 from .forms import ItemSearchForm, ItemShareForm
 from .models import Item
@@ -107,3 +111,18 @@ def item_search(request):
     else:
         form = ItemSearchForm(request)
     return render(request, "items/item_search.html", {"form": form, "items": items})
+
+
+@login_required
+@require_POST
+def item_like(request, slug):
+    action = json.loads(request.body or "{}").get("action")
+    if action not in ("like", "unlike"):
+        return JsonResponse({"status": "error"})
+
+    item = get_object_or_404(Item, slug=slug)
+    if action == "like":
+        item.liked_by.add(request.user)
+    elif action == "unlike":
+        item.liked_by.remove(request.user)
+    return JsonResponse({"status": "ok"})

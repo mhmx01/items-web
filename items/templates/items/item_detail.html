@@ -5,7 +5,11 @@
         <div class="alert alert-success">{{ message }}</div>
     {% endfor %}
 
-    <h2>Item: {{ item }}</h2>
+    {% with liked_by=item.liked_by.all liked_by_count=item.liked_by.count %}
+    <h2>
+        Item: {{ item }},
+        likes: <span class="likes-count"> {{ liked_by_count }}</span>
+    </h2>
     <div>by <u>{{ item.owner }}</u> at <u>{{ item.created_at }}</u></div>
     <p>{{ item.content }}</p>
     <div>
@@ -14,5 +18,54 @@
             <a class="btn btn-info" href="{% url 'item_edit' item.slug %}">edit</a>
         {% endif %}
         <a class="btn btn-primary" href="{% url 'item_share' item.slug %}">share</a>
+
+        {% if user.is_authenticated %}
+            <button class="like btn {% if user in liked_by %}btn-secondary{% else %}btn-success{% endif %}" data-action="{% if user in liked_by %}un{% endif %}like">
+                {% if user in liked_by %}un{% endif %}like
+            </button>
+        {% endif %}
     </div>
+    {% endwith %}
+{% endblock %}
+
+{% block domready %}
+document.querySelector('.like').addEventListener('click', event => {
+    url = "{% url 'item_like' item.slug %}";
+    const likeUnlikeButton = event.target;
+    const action = likeUnlikeButton.dataset.action;
+    const likesCountSpan = document.querySelector('.likes-count');
+
+    options = {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json',
+            'X-CSRFTOKEN': document.cookie.split(';').find(cookie => cookie.match(/^csrftoken=/)).replace('csrftoken=', ''),
+        },
+        body: JSON.stringify({ action }),
+        mode: 'same-origin'
+    };
+
+    fetch(url, options)
+    .then(response => response.json())
+    .then(json => {
+        console.log(json);
+        if (json.status === 'error') return;
+
+        let newAction;
+        let likesCount = parseInt(likesCountSpan.textContent.trim());
+        if (action === 'like') {
+            newAction = 'unlike';
+            likeUnlikeButton.classList.replace('btn-success', 'btn-secondary');
+            likesCount++;
+        } else {
+            newAction = 'like';
+            likeUnlikeButton.classList.replace('btn-secondary', 'btn-success');
+            likesCount--;
+        }
+        likeUnlikeButton.dataset.action = newAction;
+        likeUnlikeButton.textContent = newAction;
+        likesCountSpan.textContent = likesCount;
+    })
+    .catch(error => console.error(error.message));
+})
 {% endblock %}
