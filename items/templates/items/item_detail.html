@@ -10,7 +10,10 @@
         Item: {{ item }},
         likes: <span class="likes-count"> {{ liked_by_count }}</span>
     </h2>
-    <div>by <u>{{ item.owner }}</u> at <u>{{ item.created_at }}</u></div>
+    <div>
+        by <a href="{{ item.owner.get_absolute_url }}"><u>{{ item.owner }}</u></a>
+        at <u>{{ item.created_at }}</u>
+    </div>
     <p>{{ item.content }}</p>
     <div>
         {% if user == item.owner %}
