@@ -1,5 +1,18 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-    <h2>user: {{ this_user }}</h2>
+    {% with followers=this_user.followers.all followers_count=this_user.followers.count %}
+        <h2>
+            user: {{ this_user }}
+            {% if user.is_authenticated %}
+                <button class="follow btn btn-sm {% if user in followers %}btn-danger{% else %}btn-success{% endif %}" data-username="{{ this_user.username }}" data-action="{% if user in followers %}un{% endif %}follow">
+                    {% if user in followers %}un{% endif %}follow
+                </button>
+            {% endif %}
+            <span class="followers-count" title="followers">{{ followers_count }}</span>
+        </h2>
+    {% endwith %}
+
+    <script src="{% static 'accounts/js/follow.js' %}"></script>
 {% endblock %}

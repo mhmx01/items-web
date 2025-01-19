@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserCreationForm
-from .models import CustomUser
+from .models import CustomUser, Friendship
 
 
 @admin.register(CustomUser)
@@ -27,3 +27,8 @@ class CustomUserAdmin(UserAdmin):
             },
         ),
     )
+
+
+@admin.register(Friendship)
+class FriendshipAdmin(admin.ModelAdmin):
+    list_display = ("from_user", "to_user", "since")
